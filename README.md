@@ -52,6 +52,8 @@ Configuration is managed via YAML files and environment variables. See the `conf
 | `AIGW_ADMIN_PORT` | Envoy admin port | `9901` |
 | `AIGW_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
 
+> **Personal note:** I've been running this locally with `AIGW_LOG_LEVEL=debug` while exploring the codebase — much easier to trace request flow through the ext_proc filter that way.
+
 ## Architecture
 
 ```
