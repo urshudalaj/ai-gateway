@@ -80,6 +80,16 @@ make build
 make generate
 ```
 
+### Useful one-liners
+
+```bash
+# Watch logs while sending test requests — helpful for tracing ext_proc behavior
+AIGW_LOG_LEVEL=debug make run 2>&1 | tee /tmp/aigw-debug.log
+
+# Tail only routing decisions from the debug log
+grep 'routing' /tmp/aigw-debug.log | tail -f
+```
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting pull requests.
