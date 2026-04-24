@@ -1,127 +1,87 @@
-# Envoy AI Gateway
+# AI Gateway
 
-Envoy AI Gateway is an open source project for using [Envoy Gateway](https://github.com/envoyproxy/gateway) to handle request traffic from application clients to Generative AI services.
+A fork of [envoyproxy/ai-gateway](https://github.com/envoyproxy/ai-gateway) — an Envoy-based gateway for routing and managing AI/LLM API traffic.
 
-## Usage
+## Overview
 
-When using Envoy AI Gateway, we refer to a two-tier gateway pattern. **The Tier One Gateway** functions as a centralized entry point, and the **Tier Two Gateway** handles ingress traffic to a self-hosted model serving cluster.
+AI Gateway provides a unified interface for interacting with multiple AI providers (OpenAI, Anthropic, Google Gemini, Ollama, etc.) through a single Envoy proxy endpoint. It handles:
 
-- The **Tier One Gateway** handles authentication, top-level routing, and global rate limiting
-- The **Tier Two Gateway** provides fine-grained control over self-hosted model access, with endpoint picker support for LLM inference optimization.
+- **Request routing** — intelligently route requests to different AI backends
+- **Authentication** — manage API keys and credentials per provider
+- **Rate limiting** — enforce token and request rate limits
+- **Observability** — metrics, tracing, and logging for AI workloads
+- **Failover** — automatic fallback between providers
 
-![](site/blog/images/aigw-ref.drawio.png)
+## Prerequisites
 
-## Supported AI Providers
+- Go 1.22+
+- Envoy proxy (see [`.envoy-version`](.envoy-version) for required version)
+- Docker (optional, for local development)
 
-Envoy AI Gateway supports a wide range of AI providers, making it easy to integrate with your preferred LLM services:
+## Quick Start
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/openai.svg" width="60" height="60" alt="OpenAI"/>
-        <br><sub><b>OpenAI</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/azure-openai.svg" width="60" height="60" alt="Azure OpenAI"/>
-        <br><sub><b>Azure OpenAI</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/google-gemini.svg" width="60" height="60" alt="Google Gemini"/>
-        <br><sub><b>Google Gemini</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/vertex-ai.svg" width="60" height="60" alt="Vertex AI"/>
-        <br><sub><b>Vertex AI</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/aws-bedrock.svg" width="60" height="60" alt="AWS Bedrock"/>
-        <br><sub><b>AWS Bedrock</b></sub>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/mistral.svg" width="60" height="60" alt="Mistral"/>
-        <br><sub><b>Mistral</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/cohere.svg" width="60" height="60" alt="Cohere"/>
-        <br><sub><b>Cohere</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/groq.svg" width="60" height="60" alt="Groq"/>
-        <br><sub><b>Groq</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/together-ai.svg" width="60" height="60" alt="Together AI"/>
-        <br><sub><b>Together AI</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/deepinfra.svg" width="60" height="60" alt="DeepInfra"/>
-        <br><sub><b>DeepInfra</b></sub>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/deepseek.svg" width="60" height="60" alt="DeepSeek"/>
-        <br><sub><b>DeepSeek</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/hunyuan.svg" width="60" height="60" alt="Hunyuan"/>
-        <br><sub><b>Hunyuan</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/sambanova.svg" width="60" height="60" alt="SambaNova"/>
-        <br><sub><b>SambaNova</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/grok.svg" width="60" height="60" alt="Grok"/>
-        <br><sub><b>Grok</b></sub>
-      </td>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/tars.svg" width="60" height="60" alt="Tetrate Agent Router Service"/>
-        <br><sub><b>Tetrate Agent Router Service</b></sub>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" width="120">
-        <img src="site/static/img/providers/anthropic.svg" width="60" height="60" alt="Anthropic"/>
-        <br><sub><b>Anthropic</b></sub>
-      </td>
-    </tr>
-  </table>
-</div>
+### Local Development with Ollama
 
-## Documentation
+1. Copy and configure environment variables:
+   ```bash
+   cp .env.ollama .env
+   # Edit .env with your settings
+   ```
 
-- [Blog](https://aigateway.envoyproxy.io/blog/introducing-envoy-ai-gateway) introducing Envoy AI Gateway.
-- [Documentation](https://aigateway.envoyproxy.io/docs) for Envoy AI Gateway.
-- [Quickstart](https://aigateway.envoyproxy.io/docs/getting-started/) to use Envoy AI Gateway in a few simple steps.
-- [Concepts](https://aigateway.envoyproxy.io/docs/concepts/) to understand the architecture and resources of Envoy AI Gateway.
-- [Talks and Presentations](https://aigateway.envoyproxy.io/talks) about Envoy AI Gateway.
+2. Start the gateway:
+   ```bash
+   make run
+   ```
 
-## Contact
+3. Send a request:
+   ```bash
+   curl -X POST http://localhost:10000/v1/chat/completions \
+     -H 'Content-Type: application/json' \
+     -d '{"model": "llama3", "messages": [{"role": "user", "content": "Hello!"}]}'
+   ```
 
-- Slack: Join the [Envoy Slack workspace][] if you're not already a member. Otherwise, use the
-  [Envoy AI Gateway channel][] to start collaborating with the community.
+## Configuration
 
-## Get Involved
+Configuration is managed via YAML files and environment variables. See the `config/` directory for examples.
 
-We adhere to the [CNCF Code of conduct][Code of conduct]
+### Environment Variables
 
-The Envoy AI Gateway team and community members meet every Monday.
-Please register for the meeting, add agenda points, and get involved. The
-meeting details are available in the [public document][meeting].
+| Variable | Description | Default |
+|---|---|---|
+| `AIGW_PORT` | Gateway listen port | `10000` |
+| `AIGW_ADMIN_PORT` | Envoy admin port | `9901` |
+| `AIGW_LOG_LEVEL` | Log level (`debug`, `info`, `warn`, `error`) | `info` |
 
-To contribute to the project via pull requests, please read the [CONTRIBUTING.md](CONTRIBUTING.md) file
-which includes information on how to build and test the project.
+## Architecture
 
-## Background
+```
+Client → Envoy Proxy → AI Gateway Filter → AI Provider
+                            ↓
+                    (routing, auth, rate limiting)
+```
 
-The proposal of using Envoy Gateway as a [Cloud Native LLM Gateway][Cloud Native LLM Gateway] inspired the initiation of this project.
+The gateway runs as an Envoy external processor (ext_proc) or HTTP filter, intercepting requests and responses to apply AI-specific logic.
 
-[meeting]: https://docs.google.com/document/d/10e1sfsF-3G3Du5nBHGmLjXw5GVMqqCvFDqp_O65B0_w/edit?tab=t.0
-[Envoy Slack workspace]: https://communityinviter.com/apps/envoyproxy/envoy
-[Envoy AI Gateway channel]: https://envoyproxy.slack.com/archives/C07Q4N24VAA
-[Code of conduct]: https://github.com/cncf/foundation/blob/main/code-of-conduct.md
-[Cloud Native LLM Gateway]: https://docs.google.com/document/d/1FQN_hGhTNeoTgV5Jj16ialzaSiAxC0ozxH1D9ngCVew/edit?tab=t.0#heading=h.uuu99yemq4eo
+## Development
+
+```bash
+# Run tests
+make test
+
+# Run linter
+make lint
+
+# Build binaries
+make build
+
+# Generate code (protobuf, mocks)
+make generate
+```
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting pull requests.
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE) for details.
