@@ -88,6 +88,12 @@ AIGW_LOG_LEVEL=debug make run 2>&1 | tee /tmp/aigw-debug.log
 
 # Tail only routing decisions from the debug log
 grep 'routing' /tmp/aigw-debug.log | tail -f
+
+# Quick smoke test against local Ollama — I run this after any config change
+curl -s -X POST http://localhost:10000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model": "llama3", "messages": [{"role": "user", "content": "ping"}]}' \
+  | jq '.choices[0].message.content'
 ```
 
 ## Contributing
