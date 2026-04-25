@@ -94,6 +94,9 @@ curl -s -X POST http://localhost:10000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{"model": "llama3", "messages": [{"role": "user", "content": "ping"}]}' \
   | jq '.choices[0].message.content'
+
+# Count total tokens used across all requests in a debug log session
+grep 'total_tokens' /tmp/aigw-debug.log | awk -F'total_tokens=' '{sum += $2} END {print "Total tokens:", sum}'
 ```
 
 ## Contributing
