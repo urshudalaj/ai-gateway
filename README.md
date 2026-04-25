@@ -96,13 +96,5 @@ curl -s -X POST http://localhost:10000/v1/chat/completions \
   | jq '.choices[0].message.content'
 
 # Count total tokens used across all requests in a debug log session
-grep 'total_tokens' /tmp/aigw-debug.log | awk -F'total_tokens=' '{sum += $2} END {print "Total tokens:", sum}'
+grep 'total_tokens' /tmp/aigw-debug.log | awk -F'total_tokens=([0-9]+)' '{sum += $2} END {print "Total tokens:", sum}'
 ```
-
-## Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting pull requests.
-
-## License
-
-Apache License 2.0 — see [LICENSE](LICENSE) for details.
